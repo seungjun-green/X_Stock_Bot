@@ -247,6 +247,8 @@ def create_twitter_friendly_image(df, date):
             y_offset -= 0.06
         
         y_offset -= 0.04
+        
+    ax.text(0.98, -0.022, "@TodayUSMarkets", fontsize=14, color='white', ha='right', va='bottom', transform=ax.transAxes)
 
     ax.axis('off')
 
@@ -258,5 +260,7 @@ def create_twitter_friendly_image(df, date):
     plt.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.02)
     plt.savefig('market_summary_tweet.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
     plt.close()
+    
+    
 df, date = get_summary()
 create_twitter_friendly_image(df, date)

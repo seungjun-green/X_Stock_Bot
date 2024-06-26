@@ -17,6 +17,12 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
-
-def make_tweet(today_summary):
-    client.create_tweet(text=today_summary)
+        
+def make_tweet(image_path):
+    media = api.media_upload(filename=image_path)
+    
+    response = client.create_tweet(
+        text="",
+        media_ids=[media.media_id]
+    )
+    return response
