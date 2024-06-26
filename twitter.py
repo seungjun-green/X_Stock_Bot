@@ -26,3 +26,9 @@ def make_tweet(image_path):
         media_ids=[media.media_id]
     )
     return response
+
+
+
+def make_tweet_text(tweet_string):
+    client.create_tweet(text=tweet_string)
+    
