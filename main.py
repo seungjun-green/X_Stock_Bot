@@ -19,13 +19,14 @@ def is_market_open():
 
 
 def job():
-    print("Program Started")
     df, date_str = get_summary()
     create_twitter_friendly_image(df, date_str)
     make_tweet(image_path="market_summary_tweet.png")
+    print(f"Tweeted - {datetime.now().date()}")
 
 
 if __name__ == "__main__":
+    print("Program Started")
     while True:
         now = datetime.now().strftime('%H:%M')
         if now == '16:05' and is_market_open():
