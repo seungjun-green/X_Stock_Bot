@@ -25,7 +25,6 @@ def job():
     make_tweet(image_path="market_summary_tweet.png")
 
 
-
 if __name__ == "__main__":
     while True:
         now = datetime.now().strftime('%H:%M')
