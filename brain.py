@@ -4,6 +4,9 @@ from prettytable import PrettyTable
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib
+matplotlib.use('Agg')
+
 
 stock_info = [
     ("S&P 500", "^GSPC", "SPY"),
@@ -34,17 +37,6 @@ twitter_style = {
     }
 
 
-def bold(input_text):
-    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    bold_chars = "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵"
-    output = ""
-    for character in input_text:
-        if character in chars:
-            output += bold_chars[chars.index(character)]
-        else:
-            output += character 
-    return output
-
 def get_performance(ticker, price_ticker=None):
     stock_data = yf.Ticker(ticker).history(period="5d")
     if stock_data.empty:
@@ -72,39 +64,6 @@ def format_price(price, ticker):
         return f"${price:.2f}"
 
 
-# def get_summary():
-#     today = datetime.now()
-#     formatted_date = today.strftime("%B %d, %Y")
-#     summary = [bold(f"🇺🇸📊 𝗠𝗮𝗿𝗸𝗲𝘁 𝗦𝘂𝗺𝗺𝗮𝗿𝘆: {formatted_date}") + "\n"]
-
-#     summary.append("\n◆ Stock Indices:")
-#     for item in stock_info[:4]:
-#         name, ticker = item[0], item[1]
-#         price_ticker = item[2] if len(item) > 2 else ticker
-#         change, price = get_performance(ticker, price_ticker)
-#         emoji = '🟢' if change >= 0 else '🔴'
-#         sign = '+' if change >= 0 else ''
-#         summary.append(f"{emoji} ${twitter_style[price_ticker]} {name}: {sign}{change:.2f}% | {format_price(price, ticker)}")
-
-#     summary.append("\n◆ Volatility & Commodities:")
-#     for item in stock_info[4:9]:
-#         name, ticker = item[0], item[1]
-#         change, price = get_performance(ticker)
-#         emoji = '🟢' if change >= 0 else '🔴'
-#         sign = '+' if change >= 0 else ''
-#         summary.append(f"{emoji} ${twitter_style[ticker]} {name}: {sign}{change:.2f}% | {format_price(price, ticker)}")
-
-#     summary.append("\n◆ Other:")
-#     for item in stock_info[9:]:
-#         name, ticker = item[0], item[1]
-#         change, price = get_performance(ticker)
-#         emoji = '🟢' if change >= 0 else '🔴'
-#         sign = '+' if change >= 0 else ''
-#         summary.append(f"{emoji} ${twitter_style[ticker]} {name}: {sign}{change:.2f}% | {format_price(price, ticker)}")
-
-#     return "\n".join(summary)
-
-
 def get_summary():
     today = datetime.now()
     formatted_date = today.strftime("%B %d, %Y")
@@ -127,87 +86,7 @@ def get_summary():
     return df, formatted_date
 
 
-def create_summary_image(df, date):
-    plt.figure(figsize=(12, 8))
-    plt.title(f"Market Summary: {date}", fontsize=16, fontweight='bold')
-    
-    # Create a table
-    cell_text = []
-    for row in range(len(df)):
-        cell_text.append(df.iloc[row])
-    
-    colors = ['g' if x >= 0 else 'r' for x in df['Change']]
-    
-    table = plt.table(cellText=cell_text, colLabels=df.columns, cellLoc='center', loc='center', cellColours=[[c]*4 for c in colors])
-    
-    # Modify table properties
-    table.auto_set_font_size(False)
-    table.set_fontsize(10)
-    table.scale(1.2, 1.5)
-    
-    # Hide axes
-    plt.axis('off')
-    
-    # Save the figure
-    plt.tight_layout()
-    plt.savefig('market_summary.png', dpi=300, bbox_inches='tight')
-    plt.close()
 
-
-
-
-
-# def create_twitter_friendly_image(df, date):
-#     sections = [
-#         ("Stock Indices:", df[:4]),
-#         ("Volatility & Commodities:", df[4:9]),
-#         ("Other:", df[9:])
-#     ]
-
-#     # Calculate required height based on content
-#     num_items = sum(len(section_df) for _, section_df in sections)
-#     fig_height = 2 + (num_items * 0.3) + (len(sections) * 0.3)  # Adjust multipliers as needed
-    
-#     fig, ax = plt.subplots(figsize=(8, fig_height))
-#     fig.patch.set_facecolor('#1e2129')
-#     ax.set_facecolor('#1e2129')
-
-#     # Title
-#     ax.text(0.5, 0.98, f"Market Summary: {date}", fontsize=17, fontweight='bold', 
-#             ha='center', va='top', color='white', transform=ax.transAxes)
-
-#     y_offset = 0.92
-#     for title, section_df in sections:
-#         ax.text(0.05, y_offset, title, fontsize=13, fontweight='bold', color='white')
-#         y_offset -= 0.04
-        
-#         for _, row in section_df.iterrows():
-#             color = 'lime' if row['Change'] >= 0 else 'red'
-#             change_sign = '+' if row['Change'] >= 0 else ''
-#             name_text = f"{row['Name']}:"
-#             change_text = f"{change_sign}{row['Change']:.2f}%"
-#             price_text = f"{row['Price']}"
-            
-#             ax.text(0.08, y_offset, name_text, fontsize=10, color='white')
-#             ax.text(0.65, y_offset, change_text, fontsize=10, color=color)
-#             ax.text(0.82, y_offset, price_text, fontsize=10, color='white')
-            
-#             y_offset -= 0.04
-        
-#         y_offset -= 0.02
-
-#     ax.axis('off')
-
-#     # Create border effect without using Rectangle patch
-#     fig.patch.set_linewidth(2)
-#     fig.patch.set_edgecolor('gray')
-
-#     plt.tight_layout()
-#     plt.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.02)
-#     plt.savefig('market_summary_tweet.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
-#     plt.close()
-    
-# Usage remains the same
 
 def create_twitter_friendly_image(df, date):
     sections = [
@@ -262,5 +141,5 @@ def create_twitter_friendly_image(df, date):
     plt.close()
     
     
-df, date = get_summary()
-create_twitter_friendly_image(df, date)
+df, date_str = get_summary()
+create_twitter_friendly_image(df, date_str)
