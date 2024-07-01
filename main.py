@@ -40,8 +40,6 @@ def get_votaile():
     
     return res.strip()
 
-    
-    
 
 def is_market_open():
     spy = yf.Ticker("SPY")
@@ -50,23 +48,34 @@ def is_market_open():
     today_date = datetime.now(timezone('US/Eastern')).date()
     return last_data_date == today_date
 
-def job():
-    df, date_str = get_summary()
+def market_summary_tweet():
+    df, date_str = get_summary_img()
     create_twitter_friendly_image(df, date_str)
-    make_tweet(image_path="market_summary_tweet.png")
-    print(f"Tweeted [1] - {datetime.now(timezone('US/Eastern')).date()}")
+    txt = get_summary_txt()
+    make_tweet(txt=txt, image_path="market_summary_tweet.png")
+    print(f"Tweeted [Major Indexs] - {datetime.now(timezone('US/Eastern')).date()}")
+
+def votaile_market_tweet():
+    
     second_tweet = get_votaile()
     make_tweet_text(second_tweet)
-    print(f"Tweeted [2] - {datetime.now(timezone('US/Eastern')).date()}")
-    
+    print(f"Tweeted [Votaile Stocks] - {datetime.now(timezone('US/Eastern')).date()}")
+        
 
+def trending_news_tweet():
+    txt = get_top5_news()
+    make_tweet_text(txt)
+    print(f"Tweeted [Trending News] - {datetime.now(timezone('US/Eastern')).date()}")
+    
 
 if __name__ == "__main__":
     print("Program Started\n")
     while True:
         now_est = datetime.now(timezone('US/Eastern'))
+        # votail market tweet
+        if now_est.strftime('%H:%M:%S') == '9:35:00' and is_market_open():
+            votaile_market_tweet()
+        # major stock index tweet
         if now_est.strftime('%H:%M:%S') == '16:05:00' and is_market_open():
-            job()
+            market_summary_tweet()
         time.sleep(1)
-
-

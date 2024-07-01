@@ -18,11 +18,11 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
         
-def make_tweet(image_path):
+def make_tweet(txt, image_path):
     media = api.media_upload(filename=image_path)
     
     response = client.create_tweet(
-        text="",
+        text=txt,
         media_ids=[media.media_id]
     )
     return response

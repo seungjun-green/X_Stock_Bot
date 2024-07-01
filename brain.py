@@ -5,14 +5,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib
+import requests
 matplotlib.use('Agg')
 
 
 stock_info = [
-    ("S&P 500", "^GSPC", "SPY"),
-    ("Nasdaq", "^IXIC", "QQQ"),
+    ("S&P 500", "SPY", "SPY"),
+    ("Nasdaq", "QQQ", "QQQ"),
     ("Dow Jones", "^DJI", "DIA"),
-    ("Russell 2000", "^RUT", "IWM"),
+    ("Russell 2000", "IWM", "IWM"),
     ("VIX", "^VIX"),
     ("Crude Oil", "CL=F"),
     ("Gold", "GC=F"),
@@ -25,7 +26,7 @@ stock_info = [
 twitter_style = {
     "SPY": "SPY",
     "QQQ": "QQQ",
-    "DIA": "DIA",
+    "DIA": "DJI",
     "IWM": "IWM",
     "^VIX": "VIX",
     "CL=F": "CLF",
@@ -52,7 +53,6 @@ def get_performance(ticker, price_ticker=None):
     
     return change, close_price
 
-
 def format_price(price, ticker):
     if price is None:
         return "N/A"
@@ -63,8 +63,7 @@ def format_price(price, ticker):
     else:
         return f"${price:.2f}"
 
-
-def get_summary():
+def get_summary_img():
     today = datetime.now()
     formatted_date = today.strftime("%B %d, %Y")
     
@@ -84,9 +83,6 @@ def get_summary():
     
     df = pd.DataFrame(data)
     return df, formatted_date
-
-
-
 
 def create_twitter_friendly_image(df, date):
     sections = [
@@ -141,5 +137,73 @@ def create_twitter_friendly_image(df, date):
     plt.close()
     
     
-# df, date_str = get_summary()
+# df, date_str = get_summary_img()
 # create_twitter_friendly_image(df, date_str)
+
+def bold(input_text):
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    bold_chars = "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵"
+    output = ""
+    for character in input_text:
+        if character in chars:
+            output += bold_chars[chars.index(character)]
+        else:
+            output += character 
+    return output
+
+
+def get_summary_txt():
+    today = datetime.now()
+    formatted_date = today.strftime("%B %d, %Y")
+    summary = [bold(f"𝗠𝗮𝗿𝗸𝗲𝘁 𝗦𝘂𝗺𝗺𝗮𝗿𝘆: {formatted_date}") + "\n"]
+
+    summary.append("◆ Stock Indices:")
+    for item in stock_info[:4]:
+        name, ticker = item[0], item[1]
+        price_ticker = item[2] if len(item) > 2 else ticker
+        change, cp = get_performance(ticker)
+        emoji = '🟩' if change >= 0 else '🟥'
+        sign = '+' if change >= 0 else ''
+        summary.append(f"{emoji} ${twitter_style[price_ticker]} {sign}{change:.2f}%")
+
+    summary.append("\n◆ Volatility & Commodities:")
+    for item in stock_info[4:9]:
+        name, ticker = item[0], item[1]
+        change, cp = get_performance(ticker)
+        emoji = '🟩' if change >= 0 else '🟥'
+        sign = '+' if change >= 0 else ''
+        summary.append(f"{emoji} ${twitter_style[ticker]} {sign}{change:.2f}%")
+
+    summary.append("\n◆ Other:")
+    for item in stock_info[9:]:
+        name, ticker = item[0], item[1]
+        change, cp = get_performance(ticker)
+        emoji = '🟩' if change >= 0 else '🟥'
+        sign = '+' if change >= 0 else ''
+        summary.append(f"{emoji} ${twitter_style[ticker]} {sign}{change:.2f}%")
+
+    return "\n".join(summary)
+
+
+def get_top5_news():
+    res = ""
+    url = "https://seekingalpha.com/api/v3/news/trending"
+
+    response = requests.get(url)
+    print(response)
+    if response.status_code == 200:
+        print("!!ssss")
+        trending_news = response.json()
+        top_5_news = trending_news['data'][:5]  # Get the top 5 news articles
+        print("soww")
+        for idx, news in enumerate(top_5_news, 1):
+            res+=f"{idx}. {news['attributes']['title']}\n"
+            print(f"{idx}. {news['attributes']['title']}\n")
+            print(res)
+    else:
+        print(f"Failed to retrieve trending news: {response.status_code}")
+        
+    return f"Topv 5 Trending News Now: \n {res.strip()}"
+
+
+print(get_summary_txt())
