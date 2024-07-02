@@ -28,7 +28,6 @@ def make_tweet(txt, image_path):
     return response
 
 
-
 def make_tweet_text(tweet_string):
     client.create_tweet(text=tweet_string)
     

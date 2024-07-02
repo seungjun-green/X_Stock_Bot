@@ -8,39 +8,6 @@ import requests
 from datetime import date
 
 
-def format_volume(volume):
-    if volume >= 1_000_000_000:
-        return f"{volume / 1_000_000_000:.2f}B"
-    elif volume >= 1_000_000:
-        return f"{volume / 1_000_000:.2f}M"
-    else:
-        return str(volume)
-    
-def get_votaile():
-    params = {
-    'function': 'TOP_GAINERS_LOSERS',
-    'apikey': "JPT24Z0LF859O60N"
-    }
-    
-    response = requests.get('https://www.alphavantage.co/query', params=params)
-    data = response.json()
-    
-    res=""
-    if 'most_actively_traded' in data:
-        sorted_stocks = sorted(data['most_actively_traded'], key=lambda x: int(x['volume']), reverse=True)
-
-        today = datetime.now(timezone('US/Eastern')).date().strftime("%B %d, %Y")
-        res += f"Top 5 Stocks by Trading Volume - {today}:\n\n"
-        for idx, stock in enumerate(sorted_stocks[:5]):
-            formatted_volume = format_volume(int(stock['volume']))
-            res += f"{idx+1}. ${stock['ticker']:<4} | Vol: {formatted_volume}, Price: ${stock['price']}\n"
-    else:
-        print("Unable to find 'most_actively_traded' in the API response. Here's what the response contains:")
-        print(data.keys())
-    
-    return res.strip()
-
-
 def is_market_open():
     spy = yf.Ticker("SPY")
     data = spy.history(period="1d") 
@@ -56,10 +23,14 @@ def market_summary_tweet():
     print(f"Tweeted [Major Indexs] - {datetime.now(timezone('US/Eastern')).date()}")
 
 def votaile_market_tweet():
-    
     second_tweet = get_votaile()
     make_tweet_text(second_tweet)
     print(f"Tweeted [Votaile Stocks] - {datetime.now(timezone('US/Eastern')).date()}")
+    
+def premarket_tweet():
+    txt = get_premarket_summary_txt()
+    make_tweet_text(txt)
+    print(f"Tweeted [PreMarket] - {datetime.now(timezone('US/Eastern')).date()}")
         
 
 def trending_news_tweet():
@@ -73,6 +44,8 @@ if __name__ == "__main__":
     while True:
         now_est = datetime.now(timezone('US/Eastern'))
         # votail market tweet
+        if now_est.strftime('%H:%M:%S') == '9:30:30' and is_market_open():
+            premarket_tweet()
         if now_est.strftime('%H:%M:%S') == '9:35:00' and is_market_open():
             votaile_market_tweet()
         # major stock index tweet
