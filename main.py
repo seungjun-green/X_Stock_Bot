@@ -40,7 +40,7 @@ def trending_news_tweet():
     
 
 if __name__ == "__main__":
-    print("Program Started\n")
+    print("Stock Program Started\n")
     while True:
         now_est = datetime.now(timezone('US/Eastern'))
         # votail market tweet
