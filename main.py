@@ -9,6 +9,6 @@ if __name__ == "__main__":
     while True:
         now_est = datetime.now(timezone('US/Eastern'))
         if now_est.strftime('%H:%M:%S') == '22:00:00':
-            make_tweet_text("Have you completed your to-do list for today? Don't sleep until you do!")
+            make_tweet_text("What did you get done today?")
             print(f"Tweeted - {now_est.strftime('%H:%M:%S')}\n")
         time.sleep(1)
